@@ -54,7 +54,7 @@ export default function App() {
           <DeckList />
         ) : (
           <View className="flex-1 items-center justify-center bg-gray-50">
-            <Text className="text-gray-400 font-medium animate-pulse">Initializing Database...</Text>
+            <Text className="text-gray-400 font-medium">Initializing Database...</Text>
           </View>
         )}
       </View>
