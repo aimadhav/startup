@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { database } from '../db';
 import Deck from '../db/models/Deck';
@@ -7,16 +7,16 @@ import Card from '../db/models/Card';
 
 // 4. Card Item Component
 const CardItem = ({ card }: { card: Card }) => (
-  <View style={styles.cardItem}>
-    <Text style={styles.cardFront}>Q: {card.content.front}</Text>
-    <Text style={styles.cardBack}>A: {card.content.back}</Text>
-    <Text style={styles.cardMeta}>Tags: {card.tags.join(', ')}</Text>
+  <View className="mb-2 p-2 bg-white rounded-md border border-gray-200">
+    <Text className="font-semibold mb-0.5">Q: {card.content.front}</Text>
+    <Text className="text-gray-700 mb-1">A: {card.content.back}</Text>
+    <Text className="text-[10px] text-gray-400">Tags: {card.tags.join(', ')}</Text>
   </View>
 );
 
 // 5. Card List for a Deck
 const DeckCardListComponent = ({ cards }: { cards: Card[] }) => (
-  <View style={styles.cardList}>
+  <View className="bg-gray-50 p-2.5 border-t border-gray-200">
     {cards.map(card => (
       <CardItem key={card.id} card={card} />
     ))}
@@ -34,13 +34,13 @@ const DeckItemComponent = ({ deck, count }: { deck: Deck, count: number }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View style={styles.itemWrapper}>
-      <TouchableOpacity onPress={() => setExpanded(!expanded)} style={styles.item}>
+    <View className="mb-2.5 bg-white rounded-xl overflow-hidden shadow-sm">
+      <TouchableOpacity onPress={() => setExpanded(!expanded)} className="p-4 flex-row justify-between items-center">
         <View>
-          <Text style={styles.title}>{deck.title}</Text>
-          <Text style={styles.subtitle}>{deck.subject} • {count} cards</Text>
+          <Text className="text-lg font-semibold text-gray-900">{deck.title}</Text>
+          <Text className="text-sm text-gray-500 mt-1">{deck.subject} • {count} cards</Text>
         </View>
-        <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+        <Text className="text-lg text-gray-400">{expanded ? '▲' : '▼'}</Text>
       </TouchableOpacity>
       {expanded && <DeckCards deck={deck} />}
     </View>
@@ -57,8 +57,8 @@ const DeckItem = enhanceDeckItem(DeckItemComponent);
 // 2. List Component
 const DeckListComponent = ({ decks }: { decks: Deck[] }) => {
   return (
-    <View style={styles.listContainer}>
-      <Text style={styles.header}>Your Decks</Text>
+    <View className="flex-1 w-full p-5">
+      <Text className="text-xl font-bold mb-4 text-gray-800">Your Decks</Text>
       <FlatList
         data={decks}
         keyExtractor={item => item.id}
@@ -74,74 +74,3 @@ const enhanceList = withObservables([], () => ({
 }));
 
 export default enhanceList(DeckListComponent);
-
-const styles = StyleSheet.create({
-  listContainer: {
-    flex: 1,
-    width: '100%',
-    padding: 20,
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#1f2937',
-  },
-  itemWrapper: {
-    marginBottom: 10,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  item: {
-    padding: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginTop: 4,
-  },
-  chevron: {
-    fontSize: 18,
-    color: '#9ca3af',
-  },
-  cardList: {
-    backgroundColor: '#f9fafb',
-    padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  cardItem: {
-    marginBottom: 8,
-    padding: 8,
-    backgroundColor: 'white',
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  cardFront: {
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  cardBack: {
-    color: '#374151',
-    marginBottom: 4,
-  },
-  cardMeta: {
-    fontSize: 10,
-    color: '#9ca3af',
-  },
-});
