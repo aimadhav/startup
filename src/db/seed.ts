@@ -38,44 +38,37 @@ export async function seedDatabase() {
       deck.category = 'Trivia'
       deck.metadata = { description: 'A starter deck' }
       deck.createdAt = new Date()
+      deck.updatedAt = new Date()
     })
+
+    const createCard = async (front: string, back: string, tags: string[] = []) => {
+      await database.get<Card>('cards').create(card => {
+        card.deck.set(defaultDeck)
+        card.content = { front, back }
+        card.cardType = 'standard'
+        card.tags = tags
+        card.createdAt = new Date()
+        card.updatedAt = new Date()
+        
+        // FSRS Defaults for New Card
+        card.state = 0 // New
+        card.stability = 0
+        card.difficulty = 0
+        card.due = new Date()
+        card.reps = 0
+        card.lapses = 0
+      })
+    }
 
     // 2. Create Sample Cards
     // Card 1: Standard
-    await database.get<Card>('cards').create(card => {
-      card.deck.set(defaultDeck)
-      card.content = { 
-        front: 'What is the capital of France?', 
-        back: 'Paris' 
-      }
-      card.cardType = 'standard'
-      card.createdAt = new Date()
-      card.tags = ['geography', 'easy']
-    })
+    await createCard('What is the capital of France?', 'Paris', ['geography', 'easy'])
 
     // Card 2: Harder
-    await database.get<Card>('cards').create(card => {
-      card.deck.set(defaultDeck)
-      card.content = { 
-        front: 'What is the powerhouse of the cell?', 
-        back: 'Mitochondria' 
-      }
-      card.cardType = 'standard'
-      card.createdAt = new Date()
-      card.tags = ['biology', 'medium']
-    })
+    await createCard('What is the powerhouse of the cell?', 'Mitochondria', ['biology', 'medium'])
 
     // Card 3: Math (Formula)
-    await database.get<Card>('cards').create(card => {
-      card.deck.set(defaultDeck)
-      card.content = { 
-        front: 'Area of a circle?', 
-        back: '\\pi r^2' 
-      }
-      card.cardType = 'standard'
-      card.createdAt = new Date()
-      card.tags = ['math', 'formula']
-    })
+    await createCard('Area of a circle?', '\\pi r^2', ['math', 'formula'])
 
     console.log('Database seeded successfully!')
   })

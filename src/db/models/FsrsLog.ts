@@ -9,6 +9,7 @@ export default class FsrsLog extends Model {
   } as const
 
   @text('card_id') cardId!: string
+  @field('rating') rating!: number // 1=Again, 2=Hard, 3=Good, 4=Easy
   @field('state') state!: number
   @field('stability') stability!: number
   @field('difficulty') difficulty!: number
@@ -16,6 +17,7 @@ export default class FsrsLog extends Model {
   @field('scheduled_days') scheduledDays!: number
   @date('due') due!: Date
   @date('last_review') lastReview!: Date
+  @date('review') review!: Date
 
   @relation('cards', 'card_id') card!: any
 }

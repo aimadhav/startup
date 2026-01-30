@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 1,
+  version: 2,
   tables: [
     tableSchema({
       name: 'decks',
@@ -11,6 +11,7 @@ export default appSchema({
         { name: 'category', type: 'string', isOptional: true }, // e.g., 'Exam Prep', 'Language'
         { name: 'metadata', type: 'string', isOptional: true }, // JSON string for extra config
         { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ]
     }),
     tableSchema({
@@ -22,12 +23,22 @@ export default appSchema({
         { name: 'tags', type: 'string', isOptional: true }, // JSON array: ["formula", "hard"]
         { name: 'card_type', type: 'string' }, // 'standard', 'super_parent', 'super_child'
         { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+        // FSRS fields
+        { name: 'state', type: 'number' }, // 0=New, 1=Learning, 2=Review, 3=Relearning
+        { name: 'stability', type: 'number' },
+        { name: 'difficulty', type: 'number' },
+        { name: 'due', type: 'number', isIndexed: true }, // Timestamp for next review
+        { name: 'last_review', type: 'number', isOptional: true }, // Timestamp of last review
+        { name: 'reps', type: 'number' },
+        { name: 'lapses', type: 'number' },
       ]
     }),
     tableSchema({
       name: 'fsrs_logs',
       columns: [
         { name: 'card_id', type: 'string', isIndexed: true },
+        { name: 'rating', type: 'number' }, // 1=Again, 2=Hard, 3=Good, 4=Easy
         { name: 'state', type: 'number' }, // 0=New, 1=Learning, 2=Review, 3=Relearning
         { name: 'stability', type: 'number' },
         { name: 'difficulty', type: 'number' },
@@ -35,6 +46,7 @@ export default appSchema({
         { name: 'scheduled_days', type: 'number' },
         { name: 'due', type: 'number' }, // Timestamp for next review
         { name: 'last_review', type: 'number' }, // Timestamp of last review
+        { name: 'review', type: 'number' }, // Timestamp of when the review happened (log creation)
       ]
     }),
   ]

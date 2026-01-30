@@ -1,5 +1,5 @@
 import { Model } from '@nozbe/watermelondb'
-import { text, date, relation, children, json } from '@nozbe/watermelondb/decorators'
+import { text, date, relation, children, json, field } from '@nozbe/watermelondb/decorators'
 import Deck from './Deck'
 
 const sanitizeContent = (rawContent: unknown) => {
@@ -26,6 +26,16 @@ export default class Card extends Model {
   @json('tags', sanitizeTags) tags!: string[]
   @text('card_type') cardType!: 'standard' | 'super_parent' | 'super_child'
   @date('created_at') createdAt!: Date
+  @date('updated_at') updatedAt!: Date
+
+  // FSRS fields
+  @field('state') state!: number // 0=New, 1=Learning, 2=Review, 3=Relearning
+  @field('stability') stability!: number
+  @field('difficulty') difficulty!: number
+  @date('due') due!: Date
+  @date('last_review') lastReview!: Date | null
+  @field('reps') reps!: number
+  @field('lapses') lapses!: number
 
   @relation('decks', 'deck_id') deck!: any
   @children('fsrs_logs') fsrsLogs!: any

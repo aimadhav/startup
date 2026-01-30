@@ -16,6 +16,7 @@ export default class Deck extends Model {
   @text('category') category!: string
   @json('metadata', sanitizeMetadata) metadata!: Record<string, any>
   @date('created_at') createdAt!: Date
+  @date('updated_at') updatedAt!: Date
 
   @children('cards') cards!: any
 }
