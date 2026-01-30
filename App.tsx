@@ -33,21 +33,28 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <StatusBar style="auto" />
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <StatusBar style="dark" />
       <View className="flex-1">
-        <View className="flex-row justify-between items-center px-5 my-2.5">
-            <Text className="text-3xl font-bold text-gray-800">Cramit</Text>
-            <TouchableOpacity onPress={handleReset} className="p-2 bg-red-500 rounded-md">
-                <Text className="text-white text-xs font-bold">Reset DB</Text>
+        {/* Header Section */}
+        <View className="flex-row justify-between items-center px-6 py-4 bg-white shadow-sm z-10">
+            <View>
+              <Text className="text-3xl font-extrabold text-indigo-600 tracking-tight">Cramit</Text>
+              <Text className="text-xs text-gray-500 font-medium">Master your memory</Text>
+            </View>
+            <TouchableOpacity 
+              onPress={handleReset} 
+              className="px-4 py-2 bg-red-50 active:bg-red-100 rounded-full border border-red-200"
+            >
+                <Text className="text-red-600 text-xs font-bold uppercase tracking-wide">Reset DB</Text>
             </TouchableOpacity>
         </View>
         
         {dbReady ? (
           <DeckList />
         ) : (
-          <View className="flex-1 items-center justify-center">
-            <Text>Initializing Database...</Text>
+          <View className="flex-1 items-center justify-center bg-gray-50">
+            <Text className="text-gray-400 font-medium animate-pulse">Initializing Database...</Text>
           </View>
         )}
       </View>
