@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests yet - tests to be added in future\" && exit 0"
   },
   "keywords": [
     "startup",
