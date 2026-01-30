@@ -1,49 +1,105 @@
-import './src/global.css';
 import { StatusBar } from 'expo-status-bar';
-import { Text, View } from 'react-native';
-import { database } from './src/db';
+import { Text, View, StyleSheet } from 'react-native';
 import { supabase } from './src/lib/supabase';
-import { fsrs, createEmptyCard } from 'ts-fsrs';
 import { useEffect, useState } from 'react';
 
 export default function App() {
-  const [dbStatus, setDbStatus] = useState('Initializing DB...');
-  const [fsrsStatus, setFsrsStatus] = useState('Checking FSRS...');
+  const [supabaseStatus, setSupabaseStatus] = useState('Checking Connection...');
+  const [envCheck, setEnvCheck] = useState('Checking Keys...');
 
   useEffect(() => {
-    try {
-      if (database.adapter) {
-        setDbStatus('WatermelonDB Adapter Loaded (JSI/SQLite)');
-      }
-    } catch (e) {
-      setDbStatus('DB Error: ' + e);
+    // 1. Check if keys loaded
+    const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+    if (url) {
+        setEnvCheck(`Keys Loaded: ${url.slice(0, 15)}...`);
+    } else {
+        setEnvCheck('❌ Keys Missing in .env');
     }
 
-    try {
-        const f = fsrs();
-        const card = createEmptyCard();
-        if (f.repeat(card, new Date())) {
-            setFsrsStatus('FSRS Logic Working');
+    // 2. Ping Supabase
+    const checkConnection = async () => {
+        try {
+            const { data, error } = await supabase.auth.getSession();
+            if (error) throw error;
+            setSupabaseStatus('✅ Connected (No Session)');
+        } catch (e: any) {
+            setSupabaseStatus(`❌ Error: ${e.message}`);
         }
-    } catch(e) {
-        setFsrsStatus('FSRS Error: ' + e);
-    }
+    };
+    checkConnection();
   }, []);
 
   return (
-    <View className="flex-1 items-center justify-center bg-gray-100">
-      <Text className="text-2xl font-bold text-blue-600 mb-4">Cramit MVP Phase 1</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Real Environment Test</Text>
       
-      <View className="bg-white p-4 rounded-lg shadow-md w-3/4">
-        <Text className="text-lg font-semibold mb-2">Environment Check:</Text>
-        
-        <Text className="text-green-600">✅ NativeWind (Styled Text)</Text>
-        <Text className="text-gray-700">Database: {dbStatus}</Text>
-        <Text className="text-gray-700">Logic: {fsrsStatus}</Text>
-        <Text className="text-gray-700">Supabase: Client Initialized</Text>
+      {/* TEST 1: Styling Check (Manual) */}
+      <View style={styles.box}>
+        <Text style={styles.boxText}>
+            Standard Styling Works
+        </Text>
+      </View>
+
+      {/* TEST 2: Environment Variables */}
+      <View style={styles.card}>
+        <Text style={styles.label}>Environment:</Text>
+        <Text style={styles.value}>{envCheck}</Text>
+      </View>
+
+      {/* TEST 3: Supabase Connection */}
+      <View style={styles.card}>
+        <Text style={styles.label}>Supabase:</Text>
+        <Text style={styles.value}>{supabaseStatus}</Text>
       </View>
 
       <StatusBar style="auto" />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#1f2937',
+  },
+  box: {
+    backgroundColor: '#3b82f6',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 20,
+    width: '80%',
+  },
+  boxText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  card: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+    width: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  label: {
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 4,
+  },
+  value: {
+    color: '#4b5563',
+  }
+});
