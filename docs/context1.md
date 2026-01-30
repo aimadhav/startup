@@ -12,7 +12,7 @@ A high-performance flashcard app for competitive exams using the FSRS (Free Spac
 - Cloud: Supabase (Auth, Storage, and Sync).
 - Logic: ts-fsrs library.
 - Rendering: WebView (for KaTeX/LaTeX & Chemical formulas).
-expo native on eas
+    expo native on eas
 ## Session & Algorithm Logic
 - Priority Queue: 
     1. Rating 1 (Again) cards.

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "cramit",
-    "slug": "cramit",
+    "name": "minor-cramit",
+    "slug": "minor-cramit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,30 +21,19 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.cramit.app",
       "edgeToEdgeEnabled": true,
-      "package": "com.cramit.app"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-secure-store",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "packagingOptions": {
-              "pickFirst": [
-                "**/libc++_shared.so"
-              ]
-            }
-          }
-        }
-      ]
+      "expo-sqlite"
     ],
     "extra": {
       "eas": {
-        "projectId": "925d23e3-3000-434e-af08-59253d97cbd8"
+        "projectId": "443368fd-bfc5-4b1a-8ada-06a91034c977"
       }
     }
   }
