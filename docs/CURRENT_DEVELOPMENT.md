@@ -1,7 +1,7 @@
 # Current Development Status
 
 **Last Updated:** Jan 30, 2026
-**Phase:** 1 (Environment Setup & Verification) - COMPLETED
+**Phase:** 2 (Database & Basic UI) - IN PROGRESS
 
 ## ✅ Accomplishments
 
@@ -15,15 +15,22 @@
     -   Verified real-time connection to Supabase in `App.tsx`.
 
 3.  **Database & Logic:**
-    -   **WatermelonDB:** Installed and configured JSI/SQLite adapter. Schema defined in `src/db/schema.ts`.
+    -   **WatermelonDB Setup:** Installed and configured JSI/SQLite adapter. Schema defined in `src/db/schema.ts`.
+    -   **Models Implemented:** `Deck`, `Card`, and `FsrsLog` models created in `src/db/models/`.
+    -   **Database Instance:** Initialized in `src/db/index.ts`.
+    -   **Seeding:** Implemented `src/db/seed.ts` to populate initial data. Verified via logs ("Database seeded successfully!").
     -   **FSRS (Spaced Repetition):** Integrated `ts-fsrs` and verified algorithm execution.
-    -   **State Management:** Zustand installed (ready for Phase 2).
+    -   **Documentation:** Imported official WatermelonDB docs into `knowledge/` for offline reference.
 
-4.  **Verification:**
+4.  **User Interface:**
+    -   **Home Screen:** Implemented `DeckList.tsx` showing decks and cards with WatermelonDB observables.
+    -   **Styling:** Used standard `StyleSheet` objects (NativeWind disabled due to Windows issues).
+
+5.  **Verification:**
     -   "Real Environment Test" screen (`App.tsx`) confirms:
         -   Environment variables loaded.
         -   Supabase auth connection successful.
-        -   Standard React Native styling works.
+        -   Database seeding and querying works.
 
 ## ⚠️ Current Issues & Technical Debt
 
@@ -49,8 +56,13 @@ The `nativewind/metro` plugin seemingly mishandles absolute paths on Windows whe
     -   Wait for a NativeWind patch.
     -   Switch to `tamagui` or `unistyles` if the bug persists.
 
-## 📋 Next Steps (Phase 2)
-1.  Implement WatermelonDB Models (`Deck`, `Card`, `FsrsLog`).
-2.  Create the `database` instance with these models.
-3.  Build the **Home Screen** (Deck List).
-4.  Implement basic Card creation (seeding).
+## 📋 Next Steps (Phase 3: Study Interface & Sync)
+1.  **Flashcard Interaction:**
+    -   Implement "Tinder-like" card swiping UI.
+    -   Connect swipe actions (Easy, Hard, etc.) to FSRS algorithm.
+    -   Handle card flipping and content rendering (images, formulas).
+2.  **Syncing:**
+    -   Implement WatermelonDB <-> Supabase sync.
+3.  **Refinement:**
+    -   Polish Home Screen UI.
+    -   Add "Mistakes" or "Cram Mode" logic.

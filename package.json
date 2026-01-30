@@ -29,6 +29,7 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.28.6",
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
   },
