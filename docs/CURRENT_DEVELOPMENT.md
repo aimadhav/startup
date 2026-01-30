@@ -24,45 +24,31 @@
 
 4.  **User Interface:**
     -   **Home Screen:** Implemented `DeckList.tsx` showing decks and cards with WatermelonDB observables.
-    -   **Styling:** Used standard `StyleSheet` objects (NativeWind disabled due to Windows issues).
+    -   **UI Framework:** Enabled **NativeWind (Tailwind CSS)** successfully.
+        -   Downgraded `nativewind` to v4.1.23 to resolve Windows pathing issues.
+        -   Configured `metro.config.js` with explicit input/output paths.
+        -   Verified `className` prop works with TypeScript.
 
 5.  **Verification:**
     -   "Real Environment Test" screen (`App.tsx`) confirms:
         -   Environment variables loaded.
         -   Supabase auth connection successful.
         -   Database seeding and querying works.
+        -   Metro bundler loads NativeWind config without errors.
 
 ## ⚠️ Current Issues & Technical Debt
 
-### 1. NativeWind (Tailwind CSS) Disabled
-**Severity:** High (Styling blocked)
-**Context:**
-We attempted to use `nativewind` v4 for Tailwind CSS styling. However, the build fails on **Windows 11 with Node.js v22**.
-
-**Error:**
-```text
-Error [ERR_UNSUPPORTED_ESM_URL_SCHEME]: Error loading Metro config at: .../metro.config.js
-Only URLs with a scheme in: file, data, and node are supported by the default ESM loader. On Windows, absolute paths must be valid file:// URLs. Received protocol 'c:'
-```
-
-**Root Cause:**
-The `nativewind/metro` plugin seemingly mishandles absolute paths on Windows when running in an ESM context (or when Node infers ESM), causing the Metro bundler to crash.
-
-**Current Workaround:**
--   **Action:** Removed `withNativeWind` from `metro.config.js` and removed the Babel plugin.
--   **Result:** App builds and runs successfully using standard `StyleSheet` objects.
--   **Future Plan:** Revisit this in Phase 3. Potential fixes:
-    -   Downgrade to Node.js v18 (LTS).
-    -   Wait for a NativeWind patch.
-    -   Switch to `tamagui` or `unistyles` if the bug persists.
+*(None currently blocking)*
 
 ## 📋 Next Steps (Phase 3: Study Interface & Sync)
-1.  **Flashcard Interaction:**
+1.  **Refactor UI with NativeWind:**
+    -   Convert `DeckList.tsx` and `App.tsx` styles to Tailwind classes.
+2.  **Flashcard Interaction:**
     -   Implement "Tinder-like" card swiping UI.
     -   Connect swipe actions (Easy, Hard, etc.) to FSRS algorithm.
     -   Handle card flipping and content rendering (images, formulas).
-2.  **Syncing:**
+3.  **Syncing:**
     -   Implement WatermelonDB <-> Supabase sync.
-3.  **Refinement:**
+4.  **Refinement:**
     -   Polish Home Screen UI.
     -   Add "Mistakes" or "Cram Mode" logic.
