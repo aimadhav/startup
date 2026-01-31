@@ -4,6 +4,7 @@
 -- 1. DECKS TABLE
 create table public.decks (
   id text primary key, -- WatermelonDB uses string IDs
+  user_id uuid default auth.uid(), -- Link to Supabase Auth
   title text not null,
   subject text,
   category text,
@@ -17,6 +18,7 @@ create table public.decks (
 create table public.cards (
   id text primary key,
   deck_id text references public.decks(id),
+  user_id uuid default auth.uid(), -- Link to Supabase Auth
   parent_id text, -- For Super Card siblings
   content jsonb not null, -- { front: "...", back: "..." }
   tags jsonb, -- ["tag1", "tag2"]
@@ -41,12 +43,15 @@ create table public.cards (
 -- Index for performance
 create index cards_deck_id_idx on public.cards(deck_id);
 create index cards_due_idx on public.cards(due);
+create index cards_user_id_idx on public.cards(user_id);
+create index decks_user_id_idx on public.decks(user_id);
 
 -- 3. FSRS_LOGS TABLE
 -- Note: Added created_at/updated_at to support sync protocol even if missing locally
 create table public.fsrs_logs (
   id text primary key,
   card_id text references public.cards(id),
+  user_id uuid default auth.uid(), -- Link to Supabase Auth
   rating integer,
   state integer,
   stability double precision,
@@ -63,12 +68,14 @@ create table public.fsrs_logs (
 );
 
 create index fsrs_logs_card_id_idx on public.fsrs_logs(card_id);
+create index fsrs_logs_user_id_idx on public.fsrs_logs(user_id);
 
 -- 4. USERS TABLE
 -- This table usually links to Supabase Auth. 
 -- If WatermelonDB generates a random ID, you might need a trigger to link it to auth.uid()
 create table public.users (
   id text primary key,
+  user_id uuid references auth.users(id),
   name text,
   referral_code text,
   teacher_id text,
