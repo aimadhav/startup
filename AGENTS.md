@@ -20,6 +20,7 @@ Minor Cramit is an MVP flashcard app focusing on spaced repetition for competiti
    - **NO COMMITTING:** Do NOT run `git commit` or `git push`.
    - **STAGING ONLY:** Run `git add .` when finished.
    - **HANDOFF:** Notify user "Code is staged. Run the 'review' command."
+   - **Commiting:** When user asks to commit, ensure `docs/CURRENT_DEVELOPMENT.md` is updated first.
 
 ## Technical Standards
 
@@ -52,9 +53,13 @@ Minor Cramit is an MVP flashcard app focusing on spaced repetition for competiti
 ## Database & Sync
 - **Schema:** Defined in `src/db/schema.ts` (local) and `supabase_schema.sql` (remote).
 - **Sync:** Changes track `created_at`, `updated_at`, and `deleted` flags.
-- **Supabase:** Used as the backend for sync. Schema changes must be applied manually via Supabase Dashboard or SQL Editor until automated.
+- **Supabase:** Used as the backend for sync.
+  - **Schema Updates:** Manual updates via Supabase Dashboard/SQL Editor are preferred to avoid connection pooler issues, though scripts can be used if configured correctly with `pg` and `dotenv`.
 
 ## Business Context
 - **Goal:** MVP Flashcard app.
 - **Users:** Students (competitive exams).
 - **Features:** Premade decks (primary), Spaced Repetition (FSRS), Offline support.
+
+## Security
+- **Secrets:** NEVER expose `.env` variables in code or logs.
