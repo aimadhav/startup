@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 2,
+  version: 3,
   tables: [
     tableSchema({
       name: 'decks',
@@ -21,6 +21,7 @@ export default appSchema({
         { name: 'parent_id', type: 'string', isOptional: true, isIndexed: true }, // For Super Card siblings
         { name: 'content', type: 'string' }, // JSON: { front: "...", back: "..." }
         { name: 'tags', type: 'string', isOptional: true }, // JSON array: ["formula", "hard"]
+        { name: 'assets', type: 'string', isOptional: true }, // JSON: { frontImage: "file://...", backImage: "..." }
         { name: 'card_type', type: 'string' }, // 'standard', 'super_parent', 'super_child'
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
@@ -30,6 +31,7 @@ export default appSchema({
         { name: 'difficulty', type: 'number' },
         { name: 'due', type: 'number', isIndexed: true }, // Timestamp for next review
         { name: 'last_review', type: 'number', isOptional: true }, // Timestamp of last review
+        { name: 'last_rating', type: 'number', isOptional: true }, // Cache last rating (1-4) for "Mistakes Filter"
         { name: 'reps', type: 'number' },
         { name: 'lapses', type: 'number' },
       ]
@@ -47,6 +49,17 @@ export default appSchema({
         { name: 'due', type: 'number' }, // Timestamp for next review
         { name: 'last_review', type: 'number' }, // Timestamp of last review
         { name: 'review', type: 'number' }, // Timestamp of when the review happened (log creation)
+      ]
+    }),
+    tableSchema({
+      name: 'users',
+      columns: [
+        { name: 'name', type: 'string', isOptional: true },
+        { name: 'referral_code', type: 'string', isOptional: true },
+        { name: 'teacher_id', type: 'string', isOptional: true },
+        { name: 'settings', type: 'string', isOptional: true }, // JSON for other preferences
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ]
     }),
   ]

@@ -25,3 +25,6 @@
 1.**What i am building**:I am building an mvp version of a falshcard app called cramit. It is a flashcard app that uses spaced repetion on mostly premade decks(right now later we will impletment card creation and editing too) for studnets focusing on a competitive exam.
 
 2.**How should you build it**:Make sure you understand the conetxt of things if you think i am worng or there could be something better come up with a reason and tell me.I like seeing things and comp
+
+
+never push anything to git unless i say that do it

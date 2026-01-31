@@ -4,6 +4,7 @@ import { FSRS, Rating, State, createEmptyCard } from 'ts-fsrs'
 import Deck from '../models/Deck'
 import Card from '../models/Card'
 import FsrsLog from '../models/FsrsLog'
+import User from '../models/User'
 
 describe('Database Core Logic', () => {
   let database: any
@@ -264,5 +265,125 @@ describe('Database Core Logic', () => {
     
     // Verify createdAt remained unchanged
     expect(deckV2.createdAt.getTime()).toBe(t0.getTime())
+  })
+
+  test('Scenario E: User Management & Referral Logic', async () => {
+    // 1. Create User with all fields
+    let userId = ''
+    await database.write(async () => {
+      const user = await database.get('users').create((u: User) => {
+        u.name = 'Test Student'
+        u.referralCode = 'REF123'
+        u.teacherId = 'TEACHER_1'
+        u.settings = { theme: 'dark', notifications: true }
+        u.createdAt = new Date()
+        u.updatedAt = new Date()
+      })
+      userId = user.id
+    })
+
+    // 2. Verify Initial State
+    const user = await database.get('users').find(userId)
+    expect(user.name).toBe('Test Student')
+    expect(user.referralCode).toBe('REF123')
+    expect(user.teacherId).toBe('TEACHER_1')
+    expect(user.settings.theme).toBe('dark')
+    expect(user.settings.notifications).toBe(true)
+
+    // 3. Update User Settings & Name
+    await database.write(async () => {
+      await user.update((u: User) => {
+        u.name = 'Updated Student'
+        u.settings = { ...u.settings, theme: 'light' }
+      })
+    })
+
+    // 4. Verify Updates
+    const updatedUser = await database.get('users').find(userId)
+    expect(updatedUser.name).toBe('Updated Student')
+    expect(updatedUser.settings.theme).toBe('light')
+    expect(updatedUser.settings.notifications).toBe(true) // Should persist
+    expect(updatedUser.referralCode).toBe('REF123') // Should remain unchanged
+  })
+
+  test('Scenario F: Asset Logic & Persistence', async () => {
+    let cardId = ''
+    
+    await database.write(async () => {
+       const deck = await database.get('decks').create((d: Deck) => {
+        d.title = 'Asset Deck'
+        d.createdAt = new Date()
+        d.updatedAt = new Date()
+       })
+
+       const card = await database.get('cards').create((c: Card) => {
+         c.deck.set(deck)
+         c.content = { front: 'Asset Q', back: 'Asset A' }
+         c.assets = { 
+           frontImage: 'file:///data/img_front.png',
+           backImage: 'file:///data/img_back.png'
+         }
+         c.cardType = 'standard'
+         c.createdAt = new Date()
+         c.updatedAt = new Date()
+         c.state = 0
+         c.stability = 0
+         c.difficulty = 0
+         c.due = new Date()
+         c.reps = 0
+         c.lapses = 0
+       })
+       cardId = card.id
+    })
+
+    const card = await database.get('cards').find(cardId)
+    expect(card.assets.frontImage).toBe('file:///data/img_front.png')
+    expect(card.assets.backImage).toBe('file:///data/img_back.png')
+  })
+
+  test('Scenario G: Mistakes Filter Logic (lastRating Query)', async () => {
+    // This tests the logic for "Mistakes" mode where we want cards with lastRating < 3 (Again=1, Hard=2)
+    
+    await database.write(async () => {
+      const deck = await database.get('decks').create((d: Deck) => {
+        d.title = 'Mistakes Deck'
+        d.createdAt = new Date()
+        d.updatedAt = new Date()
+      })
+
+      // Helper to create card with specific lastRating
+      const createRatedCard = async (rating: number, front: string) => {
+        await database.get('cards').create((c: Card) => {
+          c.deck.set(deck)
+          c.content = { front, back: 'Ans' }
+          c.lastRating = rating
+          c.cardType = 'standard'
+          c.createdAt = new Date()
+          c.updatedAt = new Date()
+          c.state = 2 // Review
+          c.stability = 0
+          c.difficulty = 0
+          c.due = new Date()
+          c.reps = 1
+          c.lapses = rating === 1 ? 1 : 0
+        })
+      }
+
+      await createRatedCard(1, 'Card Again') // Mistake
+      await createRatedCard(2, 'Card Hard')  // Mistake
+      await createRatedCard(3, 'Card Good')  // OK
+      await createRatedCard(4, 'Card Easy')  // OK
+    })
+
+    // Query: lastRating < 3 (Again or Hard)
+    // Note: In WatermelonDB/SQLite, we might need to be careful with nulls, but here we set them all.
+    const mistakes = await database.get('cards').query(
+      Q.where('last_rating', Q.lt(3))
+    ).fetch()
+
+    expect(mistakes.length).toBe(2)
+    
+    const fronts = mistakes.map((c: Card) => c.content.front).sort()
+    expect(fronts).toEqual(['Card Again', 'Card Hard'])
   })
 })
