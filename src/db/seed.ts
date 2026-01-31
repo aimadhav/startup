@@ -5,18 +5,10 @@ import FsrsLog from './models/FsrsLog'
 
 export async function resetDatabase() {
   await database.write(async () => {
-    // Delete all records in reverse order of dependency
-    const logs = await database.get<FsrsLog>('fsrs_logs').query().fetch()
-    const cards = await database.get<Card>('cards').query().fetch()
-    const decks = await database.get<Deck>('decks').query().fetch()
-
-    // Batch delete
-    const logsToDelete = logs.map(log => log.prepareDestroyPermanently())
-    const cardsToDelete = cards.map(card => card.prepareDestroyPermanently())
-    const decksToDelete = decks.map(deck => deck.prepareDestroyPermanently())
-
-    await database.batch(...logsToDelete, ...cardsToDelete, ...decksToDelete)
-    console.log('Database cleared.')
+    // Completely wipe the database, including WatermelonDB internal tables (sync state)
+    // This is crucial to reset 'lastPulledAt' so that Sync fetches everything again.
+    await database.unsafeResetDatabase()
+    console.log('Database completely reset.')
   })
 }
 
@@ -33,6 +25,7 @@ export async function seedDatabase() {
 
     // 1. Create Default Deck
     const defaultDeck = await database.get<Deck>('decks').create(deck => {
+      deck._raw.id = 'seed_deck_gk' // Fixed ID to prevent duplicates on reset
       deck.title = 'General Knowledge'
       deck.subject = 'General'
       deck.category = 'Trivia'
@@ -41,8 +34,9 @@ export async function seedDatabase() {
       deck.updatedAt = new Date()
     })
 
-    const createCard = async (front: string, back: string, tags: string[] = []) => {
+    const createCard = async (id: string, front: string, back: string, tags: string[] = []) => {
       await database.get<Card>('cards').create(card => {
+        card._raw.id = id // Fixed ID
         card.deck.set(defaultDeck)
         card.content = { front, back }
         card.cardType = 'standard'
@@ -62,13 +56,13 @@ export async function seedDatabase() {
 
     // 2. Create Sample Cards
     // Card 1: Standard
-    await createCard('What is the capital of France?', 'Paris', ['geography', 'easy'])
+    await createCard('seed_card_1', 'What is the capital of France?', 'Paris', ['geography', 'easy'])
 
     // Card 2: Harder
-    await createCard('What is the powerhouse of the cell?', 'Mitochondria', ['biology', 'medium'])
+    await createCard('seed_card_2', 'What is the powerhouse of the cell?', 'Mitochondria', ['biology', 'medium'])
 
     // Card 3: Math (Formula)
-    await createCard('Area of a circle?', '\\pi r^2', ['math', 'formula'])
+    await createCard('seed_card_3', 'Area of a circle?', '\\pi r^2', ['math', 'formula'])
 
     console.log('Database seeded successfully!')
   })
