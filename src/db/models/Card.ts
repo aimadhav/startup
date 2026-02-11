@@ -23,11 +23,11 @@ const sanitizeAssets = (rawAssets: unknown) => {
 export default class Card extends Model {
   static table = 'cards'
   static associations = {
-    decks: { type: 'belongs_to', key: 'deck_id' },
+    deck_cards: { type: 'has_many', foreignKey: 'card_id' },
     fsrs_logs: { type: 'has_many', foreignKey: 'card_id' },
   } as const
 
-  @text('deck_id') deckId!: string
+  @text('deck_id') deckId!: string | null
   @text('parent_id') parentId!: string | null
   @json('content', sanitizeContent) content!: { front: string; back: string; [key: string]: any }
   @json('tags', sanitizeTags) tags!: string[]
@@ -45,7 +45,8 @@ export default class Card extends Model {
   @field('last_rating') lastRating!: number | null
   @field('reps') reps!: number
   @field('lapses') lapses!: number
+  @field('is_bookmarked') isBookmarked!: boolean
 
-  @relation('decks', 'deck_id') deck!: any
+  @children('deck_cards') deckCards!: any
   @children('fsrs_logs') fsrsLogs!: any
 }

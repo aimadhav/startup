@@ -8,7 +8,7 @@ const sanitizeMetadata = (rawMetadata: unknown) => {
 export default class Deck extends Model {
   static table = 'decks'
   static associations = {
-    cards: { type: 'has_many', foreignKey: 'deck_id' },
+    deck_cards: { type: 'has_many', foreignKey: 'deck_id' },
   } as const
 
   @text('title') title!: string
@@ -18,5 +18,5 @@ export default class Deck extends Model {
   @date('created_at') createdAt!: Date
   @date('updated_at') updatedAt!: Date
 
-  @children('cards') cards!: any
+  @children('deck_cards') deckCards!: any
 }

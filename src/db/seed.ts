@@ -1,6 +1,7 @@
 import { database } from './index'
 import Deck from './models/Deck'
 import Card from './models/Card'
+import DeckCard from './models/DeckCard'
 import FsrsLog from './models/FsrsLog'
 
 export async function resetDatabase() {
@@ -35,9 +36,9 @@ export async function seedDatabase() {
     })
 
     const createCard = async (id: string, front: string, back: string, tags: string[] = []) => {
-      await database.get<Card>('cards').create(card => {
+      const newCard = await database.get<Card>('cards').create(card => {
         card._raw.id = id // Fixed ID
-        card.deck.set(defaultDeck)
+        card.deckId = defaultDeck.id
         card.content = { front, back }
         card.cardType = 'standard'
         card.tags = tags
@@ -51,6 +52,13 @@ export async function seedDatabase() {
         card.due = new Date()
         card.reps = 0
         card.lapses = 0
+        card.isBookmarked = false
+      })
+
+      // Create M2M link
+      await database.get<DeckCard>('deck_cards').create(link => {
+        link.deck.set(defaultDeck)
+        link.card.set(newCard)
       })
     }
 

@@ -23,7 +23,7 @@ export async function sync() {
 export async function pull(lastPulledAt: number | null) {
   const timestamp = Date.now()
   
-  const tables = ['decks', 'cards', 'users', 'fsrs_logs']
+  const tables = ['decks', 'cards', 'users', 'fsrs_logs', 'deck_cards']
   const changes: any = {}
 
   await Promise.all(
@@ -84,7 +84,7 @@ export async function pull(lastPulledAt: number | null) {
 }
 
 export async function push(changes: any) {
-  const tables = ['decks', 'cards', 'users', 'fsrs_logs']
+  const tables = ['decks', 'cards', 'users', 'fsrs_logs', 'deck_cards']
 
   await Promise.all(
     tables.map(async (table) => {

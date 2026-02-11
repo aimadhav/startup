@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 3,
+  version: 5,
   tables: [
     tableSchema({
       name: 'decks',
@@ -17,7 +17,7 @@ export default appSchema({
     tableSchema({
       name: 'cards',
       columns: [
-        { name: 'deck_id', type: 'string', isIndexed: true },
+        { name: 'deck_id', type: 'string', isIndexed: true, isOptional: true },
         { name: 'parent_id', type: 'string', isOptional: true, isIndexed: true }, // For Super Card siblings
         { name: 'content', type: 'string' }, // JSON: { front: "...", back: "..." }
         { name: 'tags', type: 'string', isOptional: true }, // JSON array: ["formula", "hard"]
@@ -34,6 +34,16 @@ export default appSchema({
         { name: 'last_rating', type: 'number', isOptional: true }, // Cache last rating (1-4) for "Mistakes Filter"
         { name: 'reps', type: 'number' },
         { name: 'lapses', type: 'number' },
+        { name: 'is_bookmarked', type: 'boolean' },
+      ]
+    }),
+    tableSchema({
+      name: 'deck_cards',
+      columns: [
+        { name: 'deck_id', type: 'string', isIndexed: true },
+        { name: 'card_id', type: 'string', isIndexed: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ]
     }),
     tableSchema({

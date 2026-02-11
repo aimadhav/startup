@@ -3,6 +3,7 @@ import { Q } from '@nozbe/watermelondb'
 import { FSRS, Rating, State, createEmptyCard } from 'ts-fsrs'
 import Deck from '../models/Deck'
 import Card from '../models/Card'
+import DeckCard from '../models/DeckCard'
 import FsrsLog from '../models/FsrsLog'
 import User from '../models/User'
 
@@ -26,8 +27,8 @@ describe('Database Core Logic', () => {
 
       // Add 3 Cards
       const makeCard = async (q: string, a: string) => {
-        await database.get('cards').create((c: Card) => {
-          c.deck.set(deck)
+        const card = await database.get('cards').create((c: Card) => {
+          c.deckId = deck.id
           c.content = { front: q, back: a }
           c.cardType = 'standard'
           c.createdAt = new Date()
@@ -38,6 +39,11 @@ describe('Database Core Logic', () => {
           c.due = new Date()
           c.reps = 0
           c.lapses = 0
+        })
+        
+        await database.get('deck_cards').create((dc: DeckCard) => {
+          dc.deck.set(deck)
+          dc.card.set(card)
         })
       }
 
@@ -51,9 +57,13 @@ describe('Database Core Logic', () => {
     expect(decks.length).toBe(1)
     
     const deck = decks[0]
-    const cards = await deck.cards.fetch()
-    expect(cards.length).toBe(3)
-    expect(cards[0].content.front).toBeDefined()
+    // Fetch cards via M2M
+    const deckCards = await deck.deckCards.fetch()
+    expect(deckCards.length).toBe(3)
+    
+    // Verify first card content (need to fetch related card)
+    const firstCard = await deckCards[0].card.fetch()
+    expect(firstCard.content.front).toBeDefined()
   })
 
   test('Scenario B: FSRS Review Simulation & Log Integrity', async () => {
@@ -71,7 +81,7 @@ describe('Database Core Logic', () => {
         d.updatedAt = initialDate
        })
        const card = await database.get('cards').create((c: Card) => {
-         c.deck.set(deck)
+         c.deckId = deck.id
          c.content = { front: 'FSRS Q', back: 'FSRS A' }
          c.cardType = 'standard'
          c.createdAt = initialDate
@@ -82,6 +92,10 @@ describe('Database Core Logic', () => {
          c.due = initialDate
          c.reps = 0
          c.lapses = 0
+       })
+       await database.get('deck_cards').create((dc: DeckCard) => {
+          dc.deck.set(deck)
+          dc.card.set(card)
        })
        cardId = card.id
     })
@@ -171,8 +185,8 @@ describe('Database Core Logic', () => {
       })
 
       // Card 1: Due Yesterday (Review, state=2)
-      await database.get('cards').create((c: Card) => {
-        c.deck.set(deck)
+      const c1 = await database.get('cards').create((c: Card) => {
+        c.deckId = deck.id
         c.state = State.Review
         c.due = new Date(now - oneDay) // Yesterday
         c.cardType = 'standard'
@@ -184,10 +198,14 @@ describe('Database Core Logic', () => {
         c.reps = 0
         c.lapses = 0
       })
+      await database.get('deck_cards').create((dc: DeckCard) => {
+          dc.deck.set(deck)
+          dc.card.set(c1)
+      })
 
       // Card 2: Due Tomorrow (Review, state=2)
-      await database.get('cards').create((c: Card) => {
-        c.deck.set(deck)
+      const c2 = await database.get('cards').create((c: Card) => {
+        c.deckId = deck.id
         c.state = State.Review
         c.due = new Date(now + oneDay) // Tomorrow
         c.cardType = 'standard'
@@ -199,10 +217,14 @@ describe('Database Core Logic', () => {
         c.reps = 0
         c.lapses = 0
       })
+      await database.get('deck_cards').create((dc: DeckCard) => {
+          dc.deck.set(deck)
+          dc.card.set(c2)
+      })
 
       // Card 3: New (state=0)
-      await database.get('cards').create((c: Card) => {
-        c.deck.set(deck)
+      const c3 = await database.get('cards').create((c: Card) => {
+        c.deckId = deck.id
         c.state = State.New
         c.due = new Date(now)
         c.cardType = 'standard'
@@ -213,6 +235,10 @@ describe('Database Core Logic', () => {
         c.difficulty = 0
         c.reps = 0
         c.lapses = 0
+      })
+      await database.get('deck_cards').create((dc: DeckCard) => {
+          dc.deck.set(deck)
+          dc.card.set(c3)
       })
     })
 
@@ -317,7 +343,7 @@ describe('Database Core Logic', () => {
        })
 
        const card = await database.get('cards').create((c: Card) => {
-         c.deck.set(deck)
+         c.deckId = deck.id
          c.content = { front: 'Asset Q', back: 'Asset A' }
          c.assets = { 
            frontImage: 'file:///data/img_front.png',
@@ -332,6 +358,10 @@ describe('Database Core Logic', () => {
          c.due = new Date()
          c.reps = 0
          c.lapses = 0
+       })
+       await database.get('deck_cards').create((dc: DeckCard) => {
+          dc.deck.set(deck)
+          dc.card.set(card)
        })
        cardId = card.id
     })
@@ -353,8 +383,8 @@ describe('Database Core Logic', () => {
 
       // Helper to create card with specific lastRating
       const createRatedCard = async (rating: number, front: string) => {
-        await database.get('cards').create((c: Card) => {
-          c.deck.set(deck)
+        const card = await database.get('cards').create((c: Card) => {
+          c.deckId = deck.id
           c.content = { front, back: 'Ans' }
           c.lastRating = rating
           c.cardType = 'standard'
@@ -366,6 +396,10 @@ describe('Database Core Logic', () => {
           c.due = new Date()
           c.reps = 1
           c.lapses = rating === 1 ? 1 : 0
+        })
+        await database.get('deck_cards').create((dc: DeckCard) => {
+            dc.deck.set(deck)
+            dc.card.set(card)
         })
       }
 

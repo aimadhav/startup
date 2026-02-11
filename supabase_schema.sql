@@ -17,7 +17,7 @@ create table public.decks (
 -- 2. CARDS TABLE
 create table public.cards (
   id text primary key,
-  deck_id text references public.decks(id),
+  deck_id text references public.decks(id), -- Optional now (legacy or primary deck)
   user_id uuid default auth.uid(), -- Link to Supabase Auth
   parent_id text, -- For Super Card siblings
   content jsonb not null, -- { front: "...", back: "..." }
@@ -34,6 +34,7 @@ create table public.cards (
   last_rating integer,
   reps integer,
   lapses integer,
+  is_bookmarked boolean default false,
   
   created_at bigint,
   updated_at bigint,
@@ -46,7 +47,20 @@ create index cards_due_idx on public.cards(due);
 create index cards_user_id_idx on public.cards(user_id);
 create index decks_user_id_idx on public.decks(user_id);
 
--- 3. FSRS_LOGS TABLE
+-- 3. DECK_CARDS (Many-to-Many)
+create table public.deck_cards (
+  id text primary key, -- WatermelonDB ID
+  deck_id text references public.decks(id),
+  card_id text references public.cards(id),
+  created_at bigint,
+  updated_at bigint,
+  deleted boolean default false
+);
+
+create index deck_cards_deck_id_idx on public.deck_cards(deck_id);
+create index deck_cards_card_id_idx on public.deck_cards(card_id);
+
+-- 4. FSRS_LOGS TABLE
 -- Note: Added created_at/updated_at to support sync protocol even if missing locally
 create table public.fsrs_logs (
   id text primary key,
@@ -70,7 +84,7 @@ create table public.fsrs_logs (
 create index fsrs_logs_card_id_idx on public.fsrs_logs(card_id);
 create index fsrs_logs_user_id_idx on public.fsrs_logs(user_id);
 
--- 4. USERS TABLE
+-- 5. USERS TABLE
 -- This table usually links to Supabase Auth. 
 -- If WatermelonDB generates a random ID, you might need a trigger to link it to auth.uid()
 create table public.users (

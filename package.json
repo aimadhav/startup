@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "test:db": "jest src/db"
+    "test:db": "jest src/db",
+    "db:migrate:remote": "ts-node scripts/migrate-remote.ts"
   },
   "dependencies": {
     "@nozbe/watermelondb": "^0.28.0",
@@ -21,6 +22,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-gesture-handler": "^2.30.0",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-url-polyfill": "^3.0.0",
@@ -34,9 +36,12 @@
     "@babel/preset-env": "^7.28.6",
     "@babel/preset-typescript": "^7.28.5",
     "@types/jest": "^30.0.0",
+    "@types/pg": "^8.16.0",
     "@types/react": "~19.1.0",
+    "dotenv": "^17.2.4",
     "jest": "^30.2.0",
     "lokijs": "^1.5.12",
+    "pg": "^8.18.0",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.2"
